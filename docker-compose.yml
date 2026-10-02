@@ -1,0 +1,27 @@
+# docker-compose.yml
+#
+# This runs n8n (the workflow automation tool) inside a Docker container.
+# "docker compose" reads this file and handles starting the container,
+# naming it, opening the right port, and saving your data — so you don't
+# type one long `docker run ...` command by hand.
+
+services:
+  n8n:
+    image: n8nio/n8n:latest   # official n8n image, pulled from Docker Hub
+    container_name: n8n
+    restart: unless-stopped   # auto-restart n8n if it crashes or your PC reboots
+    ports:
+      - "5678:5678"           # left = your laptop's port, right = the container's port
+    environment:
+      - N8N_SECURE_COOKIE=false   # simplifies local (non-HTTPS) access on localhost
+      - TZ=Asia/Karachi           # your timezone, so the schedule trigger fires at the right time
+    volumes:
+      - n8n_data:/home/node/.n8n
+      # ^ WITHOUT this line, every workflow and credential you set up
+      # disappears the moment the container restarts, because containers
+      # reset to their original state by default. This line tells Docker
+      # "save this folder permanently on my laptop, not just inside the
+      # temporary container" — this is what a Docker VOLUME is for.
+
+volumes:
+  n8n_data:
